@@ -7,6 +7,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.Random;
+import view.GameDrawer;
 import view.Observer;
 
 /**
@@ -30,6 +31,13 @@ public class Core {
         this.currentGameState = new GameState(numberOfPlayers, playerNames);
         this.dicePairs = new ArrayList<>();
         this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
+    }
+    
+    public boolean accept(GameDrawer drawer){
+        drawer.visit(this);
+        this.currentGameState.accept(drawer);
+        
+        return false;
     }
 
     public void addScoreLister(Observer o) {
@@ -56,6 +64,7 @@ public class Core {
 
     public void stopTurn() {
         this.currentSuperviserState = Superviser_automata.READY_TO_CHANGE_PLAYER;
+        scoreListener.handle();
     }
 
     public void nextPlayer() {

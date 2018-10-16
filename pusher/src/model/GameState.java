@@ -8,6 +8,7 @@ package model;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Objects;
+import view.GameDrawer;
 
 /**
  *
@@ -27,10 +28,18 @@ public class GameState {
         this.players = new ArrayList<>();
         for (int i = 0; i < numberOfPlayers; i++) {
             System.out.println(playerNames.get(i));
-            players.add(new Player(playerNames.get(i)));
+            players.add(new Player(playerNames.get(i),i));
         }
         this.currentPlayer = 0;
 
+    }
+    
+    public boolean accept(GameDrawer drawer){
+        drawer.visit(this);
+        for(int i = 0; i < this.numberOfPlayers ; i++){
+            this.players.get(i).accept(drawer);
+        }
+        return false;
     }
 
     public int getNumTurn() {

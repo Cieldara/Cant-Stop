@@ -8,6 +8,7 @@ package model;
 import cantstop.Consts;
 import java.util.HashMap;
 import java.util.HashSet;
+import view.GameDrawer;
 
 /**
  *
@@ -16,19 +17,27 @@ import java.util.HashSet;
 public class Player {
 
     private String name;
+    private final int number;
     private HashMap<Integer, Integer> positions;
     private HashMap<Integer, Integer> holds;
     private HashSet<Integer> tracksConquered;
 
-    public Player(String name) {
+    public Player(String name, int number) {
         this.name = name;
+        this.number = number;
         this.positions = new HashMap<>();
         this.holds = new HashMap<>();
         for (int i = 0; i < Consts.nbTrack; i++) {
-            this.positions.put(3 + i, 0);
-            this.holds.put(3 + i, 0);
+            this.positions.put(i, -1);
+            this.holds.put(i, -1);
         }
         this.tracksConquered = new HashSet<>();
+        
+    }
+
+    public boolean accept(GameDrawer drawer) {
+        drawer.visit(this);
+        return false;
     }
 
     public boolean hasWon() {
@@ -49,6 +58,10 @@ public class Player {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public int getNumber() {
+        return number;
     }
 
     public HashMap<Integer, Integer> getPositions() {

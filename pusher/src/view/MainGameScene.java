@@ -22,6 +22,7 @@ public class MainGameScene extends Scene {
 
     public Core core;
     public ArrayList<Text> scoreText;
+    public RefreshJavaFX refreshor;
 
     public MainGameScene(Core core, Parent root) {
         super(root);
@@ -34,11 +35,12 @@ public class MainGameScene extends Scene {
         this.core = core;
         initScene();
     }
+    
 
     public void initScene() {
         scoreText = new ArrayList<>();
         BorderPane root = (BorderPane) this.getRoot();
-        Canvas canvas = new Canvas();
+        Canvas canvas = new Canvas(330,330);
         root.setCenter(canvas);
 
         BorderPane scoreAndButtonPane = new BorderPane();
@@ -60,6 +62,9 @@ public class MainGameScene extends Scene {
                 updateScore();
             }
         });
+        System.out.println(canvas.getWidth());
+        refreshor = new RefreshJavaFX(core, canvas);
+        refreshor.start();
 
     }
 
