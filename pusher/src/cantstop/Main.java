@@ -8,6 +8,7 @@ package cantstop;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javafx.application.Application;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import model.Core;
@@ -23,7 +24,7 @@ public class Main extends Application {
     public void start(Stage primaryStage) {
 
         int nbPlayers = 4;
-        String names[] = {"Ben", "Antoine","Victor","Violetta"};
+        String names[] = {"Ben", "Antoine", "Victor", "Violetta"};
         Core core = new Core(nbPlayers, new ArrayList<>(Arrays.asList(names)));
         BorderPane root = new BorderPane();
 

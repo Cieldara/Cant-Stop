@@ -12,6 +12,7 @@ import javafx.scene.canvas.GraphicsContext;
 import model.Core;
 import model.GameState;
 import model.Player;
+import model.PositionPawn;
 
 /**
  *
@@ -62,6 +63,14 @@ public class GameDrawer implements Visitor {
             }
         }
         gc.setStroke(Color.BLACK);
+        return false;
+    }
+
+    @Override
+    public boolean visit(PositionPawn p) {
+        gc.setFill(Color.BLACK);
+        gc.fillOval(p.getxPos(), p.getyPos(), Consts.pawnSize, Consts.pawnSize);
+        gc.setFill(Color.TRANSPARENT);
         return false;
     }
 

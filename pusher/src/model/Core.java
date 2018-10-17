@@ -5,6 +5,7 @@
  */
 package model;
 
+import cantstop.Consts;
 import java.util.ArrayList;
 import java.util.Random;
 import view.GameDrawer;
@@ -26,22 +27,34 @@ public class Core {
     private ArrayList<PairWithValue> dicePairs;
     private Superviser_automata currentSuperviserState;
     private Observer scoreListener;
+    private Observer diceListener;
+    private ArrayList<PositionPawn> pawns;
 
     public Core(int numberOfPlayers, ArrayList<String> playerNames) {
         this.currentGameState = new GameState(numberOfPlayers, playerNames);
         this.dicePairs = new ArrayList<>();
         this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
+        this.pawns = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            pawns.add(new PositionPawn(Consts.initialPostionsPawns[i][0], Consts.initialPostionsPawns[i][1]));
+        }
     }
-    
-    public boolean accept(GameDrawer drawer){
+
+    public boolean accept(GameDrawer drawer) {
         drawer.visit(this);
         this.currentGameState.accept(drawer);
-        
+        for (PositionPawn p : pawns) {
+            p.accept(drawer);
+        }
         return false;
     }
 
     public void addScoreLister(Observer o) {
         this.scoreListener = o;
+    }
+
+    public void addDiceListener(Observer o) {
+        this.diceListener = o;
     }
 
     public void throwDices() {
@@ -55,16 +68,42 @@ public class Core {
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(1), dices.get(2), dices.get(3)));
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(2), dices.get(1), dices.get(3)));
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(3), dices.get(1), dices.get(2)));
+        diceListener.handle();
+    }
+
+    public void updateCurrentPlayerPosition(ArrayList<Integer> tracks) {
 
     }
-    
-    public void updateCurrentPlayerPosition(){
-        
+
+    public void fall() {
+        //update Position of current player according to his holds
+        Player currentPlayer = this.currentGameState.getPlayers().get(this.currentGameState.getCurrentPlayer());
+        for (int i = 0; i < Consts.nbTrack; i++) {
+            currentPlayer.getPositions().put(i, currentPlayer.getHolds().get(i));
+        }
+
+        this.currentSuperviserState = Superviser_automata.READY_TO_CHANGE_PLAYER;
     }
 
     public void stopTurn() {
-        this.currentSuperviserState = Superviser_automata.READY_TO_CHANGE_PLAYER;
+
+        for (PositionPawn p : pawns) {
+            p.setTrack(-1, -1);
+        }
+
+        //update current player holds
+        Player currentPlayer = this.currentGameState.getPlayers().get(this.currentGameState.getCurrentPlayer());
+        for (int i = 0; i < Consts.nbTrack; i++) {
+            currentPlayer.getHolds().put(i, currentPlayer.getPositions().get(i));
+        }
         scoreListener.handle();
+        this.currentSuperviserState = Superviser_automata.READY_TO_CHANGE_PLAYER;
+    }
+
+    public void updatePawnPosition() {
+        for (PositionPawn p : pawns) {
+            p.updatePosition();
+        }
     }
 
     public void nextPlayer() {

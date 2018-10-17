@@ -6,6 +6,7 @@
 package view;
 
 import java.util.ArrayList;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -20,9 +21,10 @@ import model.Core;
  */
 public class MainGameScene extends Scene {
 
-    public Core core;
-    public ArrayList<Text> scoreText;
-    public RefreshJavaFX refreshor;
+    private Core core;
+    private ArrayList<Text> scoreText;
+    private VBox buttonBox;
+    private RefreshJavaFX refreshor;
 
     public MainGameScene(Core core, Parent root) {
         super(root);
@@ -35,17 +37,16 @@ public class MainGameScene extends Scene {
         this.core = core;
         initScene();
     }
-    
 
     public void initScene() {
         scoreText = new ArrayList<>();
         BorderPane root = (BorderPane) this.getRoot();
-        Canvas canvas = new Canvas(330,330);
+        Canvas canvas = new Canvas(330, 330);
         root.setCenter(canvas);
 
         BorderPane scoreAndButtonPane = new BorderPane();
         VBox scoreBox = new VBox();
-        VBox buttonBox = new VBox();
+        this.buttonBox = new VBox();
         scoreAndButtonPane.setTop(scoreBox);
         scoreAndButtonPane.setCenter(buttonBox);
         root.setRight(scoreAndButtonPane);
@@ -62,6 +63,14 @@ public class MainGameScene extends Scene {
                 updateScore();
             }
         });
+
+        this.core.addDiceListener(new Observer() {
+            @Override
+            public void handle() {
+                updateDice();
+            }
+        });
+
         System.out.println(canvas.getWidth());
         refreshor = new RefreshJavaFX(core, canvas);
         refreshor.start();
@@ -71,6 +80,12 @@ public class MainGameScene extends Scene {
     public void updateScore() {
         for (int i = 0; i < this.core.getCurrentGameState().getNumberOfPlayers(); i++) {
             scoreText.get(i).setText("Score du joueur " + this.core.getCurrentGameState().getPlayers().get(i).getName() + " : " + this.core.getCurrentGameState().getPlayers().get(i).getTracksConquered().size());
+        }
+    }
+
+    public void updateDice() {
+        for (int i = 0; i < this.buttonBox.getChildren().size(); i++) {
+            this.buttonBox.getChildren().remove(i);
         }
     }
 

@@ -29,6 +29,7 @@ public class RefreshJavaFX extends AnimationTimer {
 
     @Override
     public void handle(long now) {
+        core.updatePawnPosition();
         core.accept(drawer);
     }
 

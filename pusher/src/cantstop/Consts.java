@@ -18,4 +18,7 @@ public class Consts {
     public static double startX = 10.0;
     public static double startY = 10.0;
     public static double tileCircleSize = 20.0;
+    public static double[] initialPostionsPawns[] = {{5, 5}, {25, 5}, {45, 5}};
+    public static double pawnSize = 5;
+    public static double animationNumberFrames = 60;
 }

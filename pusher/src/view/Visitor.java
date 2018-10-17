@@ -8,6 +8,7 @@ package view;
 import model.Core;
 import model.GameState;
 import model.Player;
+import model.PositionPawn;
 
 /**
  *
@@ -20,4 +21,6 @@ public interface Visitor {
     public abstract boolean visit(GameState g);
 
     public abstract boolean visit(Player p);
+
+    public abstract boolean visit(PositionPawn p);
 }
