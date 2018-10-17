@@ -6,6 +6,7 @@
 package view;
 
 import controller.ButtonController;
+import controller.ContinueButtonController;
 import controller.StopButtonController;
 import java.util.ArrayList;
 import javafx.scene.Node;
@@ -73,6 +74,13 @@ public class MainGameScene extends Scene {
                 updateDice();
             }
         });
+        
+        this.core.addContinueListener(new Observer() {
+            @Override
+            public void handle() {
+                updateChoice();
+            }
+        });
 
         System.out.println(canvas.getWidth());
         refreshor = new RefreshJavaFX(core, canvas);
@@ -109,9 +117,23 @@ public class MainGameScene extends Scene {
 
             this.buttonBox.getChildren().add(box);
         }
+        
+
+    }
+    
+    public void updateChoice(){
+        for (int i = 0; !this.buttonBox.getChildren().isEmpty();) {
+            this.buttonBox.getChildren().remove(i);
+        }
+        
+        Button cont = new Button("Continue your turn");
+        cont.setOnMousePressed(new ContinueButtonController(this.core));
+        this.buttonBox.getChildren().add(cont);
+        
         Button stop = new Button("Stop your turn");
         stop.setOnMousePressed(new StopButtonController(this.core));
         this.buttonBox.getChildren().add(stop);
-
+        
+        
     }
 }

@@ -39,7 +39,9 @@ public class RefreshJavaFX extends AnimationTimer {
             if(time == Consts.animationNumberFrames){         
                 time = 0;
                 this.core.stopAnim();
-                this.core.throwDices();
+                //Something to do here
+                this.core.notifyChoice();
+                
             }
         }
         if(core.getCurrentSuperviserState() == Core.Superviser_automata.ANIMATING_END_TURN){

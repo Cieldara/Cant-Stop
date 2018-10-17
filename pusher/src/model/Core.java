@@ -19,7 +19,8 @@ import view.Observer;
 public class Core {
 
     public enum Superviser_automata {
-        WAITING_TO_PLAY,
+        WAITING_TO_CHOOSE_WAY,
+        WAITING_TO_CHOOSE_CONTINUE,
         READY_TO_CHANGE_PLAYER,
         ANIMATING,
         ANIMATING_END_TURN
@@ -30,13 +31,14 @@ public class Core {
     private Superviser_automata currentSuperviserState;
     private Observer scoreListener;
     private Observer diceListener;
+    private Observer continueListener;
     private ArrayList<PositionPawn> pawns;
     private ArrayList<ArrayList<ArrayList<Integer>>> possibleMoves;
 
     public Core(int numberOfPlayers, ArrayList<String> playerNames) {
         this.currentGameState = new GameState(numberOfPlayers, playerNames);
         this.dicePairs = new ArrayList<>();
-        this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
+        this.currentSuperviserState = Superviser_automata.WAITING_TO_CHOOSE_WAY;
         this.pawns = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             pawns.add(new PositionPawn(i, Consts.initialPostionsPawns[i][0], Consts.initialPostionsPawns[i][1]));
@@ -60,6 +62,10 @@ public class Core {
     public void addDiceListener(Observer o) {
         this.diceListener = o;
     }
+    
+    public void addContinueListener(Observer o){
+        this.continueListener = o;
+    }
 
     public void stopAnim() {
         for (PositionPawn p : pawns) {
@@ -78,7 +84,7 @@ public class Core {
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(1), dices.get(2), dices.get(3)));
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(2), dices.get(1), dices.get(3)));
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(3), dices.get(1), dices.get(2)));
-        this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
+        this.currentSuperviserState = Superviser_automata.WAITING_TO_CHOOSE_WAY;
         findPossibleMoves();
         diceListener.handle();
 
@@ -87,7 +93,6 @@ public class Core {
     public void findPossibleMoves() {
         boolean movePossible = false;
         HashSet tracksConquered = currentGameState.getAllTracksConquered();
-        System.out.println(tracksConquered);
 
         ArrayList<ArrayList<ArrayList<Integer>>> list = new ArrayList<>();
         for (int i = 0; i < dicePairs.size(); i++) {
@@ -124,18 +129,19 @@ public class Core {
                     values.add(tracks);
                 }
                 if (currentGameState.getTrackForThisTurn().size() < 3) {
-
-                    if (!tracksConquered.contains(firstValue)) {
+                    
+                    if(!tracksConquered.contains(firstValue) || !tracksConquered.contains(secondValue)){
                         values = new ArrayList<>();
                         movePossible = true;
+                    }
+
+                    if (!tracksConquered.contains(firstValue)) {
                         ArrayList<Integer> tracks = new ArrayList<>();
                         movePossible = true;
                         tracks.add(firstValue);
                         values.add(tracks);
                     }
                     if (!tracksConquered.contains(secondValue)) {
-                        values = new ArrayList<>();
-                        movePossible = true;
                         ArrayList<Integer> tracks = new ArrayList<>();
                         tracks.add(secondValue);
                         values.add(tracks);
@@ -188,6 +194,15 @@ public class Core {
         }
         this.currentSuperviserState = Superviser_automata.ANIMATING_END_TURN;
     }
+    
+    public void continueTurn(){
+        throwDices();   
+    }
+    
+    public void notifyChoice(){
+        this.currentSuperviserState = Superviser_automata.WAITING_TO_CHOOSE_CONTINUE;
+        continueListener.handle();
+    }
 
     public void stopTurn() {
         //update current player holds and check if the player has won one line
@@ -196,6 +211,7 @@ public class Core {
             if (currentPlayer.getPositions().get(i) == Consts.tabTrackLength[i]) {
                 currentPlayer.getTracksConquered().add(i+Consts.slackHashMap);
             } else {
+                
                 currentPlayer.getHolds().put(i, currentPlayer.getPositions().get(i));
             }
         }
