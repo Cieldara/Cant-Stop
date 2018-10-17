@@ -54,7 +54,7 @@ public class GameDrawer implements Visitor {
         for (int i = 0; i < Consts.nbTrack; i++) {
             double xPos = Consts.startX + Consts.slackBetweenTracks * i;
             for (int j = 0; j < Consts.tabTrackLength[i]; j++) {
-                if (p.getHolds().get(i) > -1) {
+                if (p.getHolds().get(i) == j) {
                     double yPos = Consts.startY + Consts.slackWithinTracks * j;
                     gc.setStroke(playerColor[p.getNumber()]);
                     gc.strokeOval(xPos + (p.getNumber() * 2), yPos + (p.getNumber() * 2), Consts.tileCircleSize - (p.getNumber() * 4), Consts.tileCircleSize - (p.getNumber() * 4));

@@ -5,7 +5,6 @@
  */
 package controller;
 
-import java.util.ArrayList;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
 import model.Core;
@@ -14,19 +13,17 @@ import model.Core;
  *
  * @author GONTARD Benjamin
  */
-public class ButtonController implements EventHandler<MouseEvent> {
+public class StopButtonController implements EventHandler<MouseEvent> {
 
     private final Core core;
-    private final ArrayList<Integer> tracksToMove;
 
-    public ButtonController(Core core, ArrayList<Integer> tracksToMove) {
-        this.core = core;
-        this.tracksToMove = tracksToMove;
+    public StopButtonController(Core c) {
+        this.core = c;
     }
 
     @Override
     public void handle(MouseEvent event) {
-        core.updateCurrentPlayerPosition(tracksToMove);
+        core.stopTurn();
     }
 
 }

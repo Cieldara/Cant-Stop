@@ -21,4 +21,5 @@ public class Consts {
     public static double[] initialPostionsPawns[] = {{5, 5}, {25, 5}, {45, 5}};
     public static double pawnSize = 5;
     public static double animationNumberFrames = 60;
+    public static int slackHashMap = 2;
 }

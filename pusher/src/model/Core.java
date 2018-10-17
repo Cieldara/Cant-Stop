@@ -7,6 +7,7 @@ package model;
 
 import cantstop.Consts;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Random;
 import view.GameDrawer;
 import view.Observer;
@@ -20,7 +21,8 @@ public class Core {
     public enum Superviser_automata {
         WAITING_TO_PLAY,
         READY_TO_CHANGE_PLAYER,
-        ANIMATING
+        ANIMATING,
+        ANIMATING_END_TURN
     };
 
     private GameState currentGameState;
@@ -29,6 +31,7 @@ public class Core {
     private Observer scoreListener;
     private Observer diceListener;
     private ArrayList<PositionPawn> pawns;
+    private ArrayList<ArrayList<ArrayList<Integer>>> possibleMoves;
 
     public Core(int numberOfPlayers, ArrayList<String> playerNames) {
         this.currentGameState = new GameState(numberOfPlayers, playerNames);
@@ -36,8 +39,9 @@ public class Core {
         this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
         this.pawns = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            pawns.add(new PositionPawn(Consts.initialPostionsPawns[i][0], Consts.initialPostionsPawns[i][1]));
+            pawns.add(new PositionPawn(i, Consts.initialPostionsPawns[i][0], Consts.initialPostionsPawns[i][1]));
         }
+
     }
 
     public boolean accept(GameDrawer drawer) {
@@ -57,6 +61,12 @@ public class Core {
         this.diceListener = o;
     }
 
+    public void stopAnim() {
+        for (PositionPawn p : pawns) {
+            p.stop();
+        }
+    }
+
     public void throwDices() {
         ArrayList<Integer> dices = new ArrayList<>();
         Random r = new Random();
@@ -68,11 +78,103 @@ public class Core {
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(1), dices.get(2), dices.get(3)));
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(2), dices.get(1), dices.get(3)));
         dicePairs.add(new PairWithValue(dices.get(0), dices.get(3), dices.get(1), dices.get(2)));
+        this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
+        findPossibleMoves();
         diceListener.handle();
+
+    }
+    /* Bug friendly function I guess */
+    public void findPossibleMoves() {
+        boolean movePossible = false;
+        HashSet tracksConquered = currentGameState.getAllTracksConquered();
+        System.out.println(tracksConquered);
+
+        ArrayList<ArrayList<ArrayList<Integer>>> list = new ArrayList<>();
+        for (int i = 0; i < dicePairs.size(); i++) {
+            ArrayList<ArrayList<Integer>> values = null;
+            Integer firstValue = dicePairs.get(i).getFirstPairValue();
+            Integer secondValue = dicePairs.get(i).getSecondPairValue();
+            //Si on peut avancer sur les deux
+            if ((!tracksConquered.contains(firstValue) && !tracksConquered.contains(secondValue))
+                    && ((currentGameState.getTrackForThisTurn().size() < 2)
+                    || (currentGameState.getTrackForThisTurn().contains(firstValue) && currentGameState.getTrackForThisTurn().contains(secondValue))
+                    || (currentGameState.getTrackForThisTurn().size() == 2 && (currentGameState.getTrackForThisTurn().contains(firstValue) || currentGameState.getTrackForThisTurn().contains(secondValue)))
+                    || (firstValue.equals(secondValue) && (currentGameState.getTrackForThisTurn().contains(firstValue) || currentGameState.getTrackForThisTurn().size() < 3)))) {
+                values = new ArrayList<>();
+                movePossible = true;
+                ArrayList<Integer> tracks = new ArrayList<>();
+                tracks.add(firstValue);
+                tracks.add(secondValue);
+                values.add(tracks);
+            } //Si on ne peut avancer que sur une
+            else {
+
+                if (currentGameState.getTrackForThisTurn().size() == 3 && currentGameState.getTrackForThisTurn().contains(firstValue) && !tracksConquered.contains(firstValue)) {
+                    values = new ArrayList<>();
+                    movePossible = true;
+                    ArrayList<Integer> tracks = new ArrayList<>();
+                    tracks.add(firstValue);
+                    values.add(tracks);
+                }
+                if (currentGameState.getTrackForThisTurn().size() == 3 && currentGameState.getTrackForThisTurn().contains(secondValue) && !tracksConquered.contains(secondValue)) {
+                    values = new ArrayList<>();
+                    movePossible = true;
+                    ArrayList<Integer> tracks = new ArrayList<>();
+                    tracks.add(secondValue);
+                    values.add(tracks);
+                }
+                if (currentGameState.getTrackForThisTurn().size() < 3) {
+
+                    if (!tracksConquered.contains(firstValue)) {
+                        values = new ArrayList<>();
+                        movePossible = true;
+                        ArrayList<Integer> tracks = new ArrayList<>();
+                        movePossible = true;
+                        tracks.add(firstValue);
+                        values.add(tracks);
+                    }
+                    if (!tracksConquered.contains(secondValue)) {
+                        values = new ArrayList<>();
+                        movePossible = true;
+                        ArrayList<Integer> tracks = new ArrayList<>();
+                        tracks.add(secondValue);
+                        values.add(tracks);
+                    }
+                }
+
+            }
+            list.add(values);
+        }
+        this.possibleMoves = list;
+        if (!movePossible) {
+            fall();
+        }
+    }
+
+    public ArrayList<ArrayList<ArrayList<Integer>>> getPossibleMoves() {
+        return this.possibleMoves;
     }
 
     public void updateCurrentPlayerPosition(ArrayList<Integer> tracks) {
+        for (Integer t : tracks) {
+            this.currentGameState.getTrackForThisTurn().add(t);
+            //Pour correspondre à la HashMap
+            Integer adaptedT = t - Consts.slackHashMap;
+            Integer maxHeight = Math.min(currentGameState.getPlayers().get(currentGameState.getCurrentPlayer()).getPositions().get(adaptedT) + 1, Consts.tabTrackLength[adaptedT]);
 
+            //Find the pawn associated with the tracks
+            PositionPawn p = null;
+            for (int i = 0; i < 3; i++) {
+                if ((p == null && pawns.get(i).getTrack() == -1) || pawns.get(i).getTrack() == adaptedT) {
+                    p = pawns.get(i);
+                }
+            }
+
+            p.setTrack(adaptedT, maxHeight);
+
+            currentGameState.getPlayers().get(currentGameState.getCurrentPlayer()).getPositions().put(adaptedT, maxHeight);
+        }
+        this.currentSuperviserState = Superviser_automata.ANIMATING;
     }
 
     public void fall() {
@@ -81,23 +183,28 @@ public class Core {
         for (int i = 0; i < Consts.nbTrack; i++) {
             currentPlayer.getPositions().put(i, currentPlayer.getHolds().get(i));
         }
-
-        this.currentSuperviserState = Superviser_automata.READY_TO_CHANGE_PLAYER;
-    }
-
-    public void stopTurn() {
-
         for (PositionPawn p : pawns) {
             p.setTrack(-1, -1);
         }
+        this.currentSuperviserState = Superviser_automata.ANIMATING_END_TURN;
+    }
 
-        //update current player holds
+    public void stopTurn() {
+        //update current player holds and check if the player has won one line
         Player currentPlayer = this.currentGameState.getPlayers().get(this.currentGameState.getCurrentPlayer());
         for (int i = 0; i < Consts.nbTrack; i++) {
-            currentPlayer.getHolds().put(i, currentPlayer.getPositions().get(i));
+            if (currentPlayer.getPositions().get(i) == Consts.tabTrackLength[i]) {
+                currentPlayer.getTracksConquered().add(i+Consts.slackHashMap);
+            } else {
+                currentPlayer.getHolds().put(i, currentPlayer.getPositions().get(i));
+            }
         }
         scoreListener.handle();
-        this.currentSuperviserState = Superviser_automata.READY_TO_CHANGE_PLAYER;
+        for (PositionPawn p : pawns) {
+            p.setTrack(-1, -1);
+        }
+        this.currentSuperviserState = Superviser_automata.ANIMATING_END_TURN;
+
     }
 
     public void updatePawnPosition() {
@@ -109,7 +216,7 @@ public class Core {
     public void nextPlayer() {
         this.currentGameState.getTrackForThisTurn().clear();
         this.currentGameState.setCurrentPlayer((this.currentGameState.getCurrentPlayer() + 1) % this.currentGameState.getNumberOfPlayers());
-        this.currentSuperviserState = Superviser_automata.WAITING_TO_PLAY;
+        throwDices();
     }
 
     public GameState getCurrentGameState() {

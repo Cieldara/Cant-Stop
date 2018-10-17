@@ -18,7 +18,7 @@ public class RefreshJavaFX extends AnimationTimer {
 
     private final Core core;
     private final GameDrawer drawer;
-    private final int time;
+    private int time;
 
     public RefreshJavaFX(Core core, Canvas c) {
         this.core = core;
@@ -31,6 +31,24 @@ public class RefreshJavaFX extends AnimationTimer {
     public void handle(long now) {
         core.updatePawnPosition();
         core.accept(drawer);
+        if (core.getCurrentSuperviserState() == Core.Superviser_automata.READY_TO_CHANGE_PLAYER) {
+            core.nextPlayer();
+        }
+        if(core.getCurrentSuperviserState() == Core.Superviser_automata.ANIMATING){
+            time++;
+            if(time == Consts.animationNumberFrames){         
+                time = 0;
+                this.core.stopAnim();
+                this.core.throwDices();
+            }
+        }
+        if(core.getCurrentSuperviserState() == Core.Superviser_automata.ANIMATING_END_TURN){
+            time++;
+            if(time == Consts.animationNumberFrames){
+                time = 0;
+                this.core.stopAnim();
+                this.core.nextPlayer();
+            }
+        }
     }
-
 }

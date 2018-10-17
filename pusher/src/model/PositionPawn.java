@@ -14,6 +14,7 @@ import view.GameDrawer;
  */
 public class PositionPawn {
 
+    private int number;
     private int track;
     private int height;
     private double xPos;
@@ -21,7 +22,8 @@ public class PositionPawn {
     private double velocityX;
     private double velocityY;
 
-    public PositionPawn(double xPos, double yPos) {
+    public PositionPawn(int number, double xPos, double yPos) {
+        this.number = number;
         this.track = -1;
         this.height = -1;
         this.xPos = xPos;
@@ -44,12 +46,22 @@ public class PositionPawn {
         return track;
     }
 
+    public void stop() {
+        this.velocityX = 0;
+        this.velocityY = 0;
+    }
+
     public void setTrack(int track, int height) {
         this.track = track;
-        double destX = Consts.startX + (track * Consts.slackBetweenTracks);
-        double destY = Consts.startY + (height * Consts.slackWithinTracks);
-        this.velocityX = destX / Consts.animationNumberFrames;
-        this.velocityY = destY / Consts.animationNumberFrames;
+        double destX = Consts.initialPostionsPawns[this.number][0];
+        double destY = Consts.initialPostionsPawns[this.number][1];
+        if (track != -1) {
+            destX = Consts.startX + (track * Consts.slackBetweenTracks);
+            destY = Consts.startY + (height * Consts.slackWithinTracks);
+        }
+        velocityX = (destX - xPos) / Consts.animationNumberFrames;
+        velocityY = (destY - yPos) / Consts.animationNumberFrames;
+
     }
 
     public double getxPos() {

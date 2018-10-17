@@ -27,12 +27,13 @@ public class Player {
         this.number = number;
         this.positions = new HashMap<>();
         this.holds = new HashMap<>();
-        for (int i = 0; i < Consts.nbTrack; i++) {
+        for (Integer i = 0; i < Consts.nbTrack; i++) {
+            System.out.println(i);
             this.positions.put(i, -1);
             this.holds.put(i, -1);
         }
         this.tracksConquered = new HashSet<>();
-        
+
     }
 
     public boolean accept(GameDrawer drawer) {

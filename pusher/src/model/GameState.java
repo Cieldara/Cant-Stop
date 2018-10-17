@@ -7,6 +7,7 @@ package model;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Objects;
 import view.GameDrawer;
 
@@ -28,15 +29,27 @@ public class GameState {
         this.players = new ArrayList<>();
         for (int i = 0; i < numberOfPlayers; i++) {
             System.out.println(playerNames.get(i));
-            players.add(new Player(playerNames.get(i),i));
+            players.add(new Player(playerNames.get(i), i));
         }
         this.currentPlayer = 0;
+        this.trackForThisTurn = new HashSet();
 
     }
-    
-    public boolean accept(GameDrawer drawer){
+
+    public HashSet getAllTracksConquered() {
+        HashSet tracks = new HashSet();
+        for (int i = 0; i < numberOfPlayers; i++) {
+            Iterator it = players.get(i).getTracksConquered().iterator();
+            while (it.hasNext()) {
+                tracks.add(it.next());
+            }
+        }
+        return tracks;
+    }
+
+    public boolean accept(GameDrawer drawer) {
         drawer.visit(this);
-        for(int i = 0; i < this.numberOfPlayers ; i++){
+        for (int i = 0; i < this.numberOfPlayers; i++) {
             this.players.get(i).accept(drawer);
         }
         return false;

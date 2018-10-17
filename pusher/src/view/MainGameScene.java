@@ -5,11 +5,14 @@
  */
 package view;
 
+import controller.ButtonController;
+import controller.StopButtonController;
 import java.util.ArrayList;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
@@ -41,7 +44,7 @@ public class MainGameScene extends Scene {
     public void initScene() {
         scoreText = new ArrayList<>();
         BorderPane root = (BorderPane) this.getRoot();
-        Canvas canvas = new Canvas(330, 330);
+        Canvas canvas = new Canvas(400, 400);
         root.setCenter(canvas);
 
         BorderPane scoreAndButtonPane = new BorderPane();
@@ -74,19 +77,41 @@ public class MainGameScene extends Scene {
         System.out.println(canvas.getWidth());
         refreshor = new RefreshJavaFX(core, canvas);
         refreshor.start();
+        core.throwDices();
 
     }
 
     public void updateScore() {
         for (int i = 0; i < this.core.getCurrentGameState().getNumberOfPlayers(); i++) {
-            scoreText.get(i).setText("Score du joueur " + this.core.getCurrentGameState().getPlayers().get(i).getName() + " : " + this.core.getCurrentGameState().getPlayers().get(i).getTracksConquered().size());
+            scoreText.get(i).setText("Score of " + this.core.getCurrentGameState().getPlayers().get(i).getName() + " : " + this.core.getCurrentGameState().getPlayers().get(i).getTracksConquered().size());
         }
     }
 
     public void updateDice() {
-        for (int i = 0; i < this.buttonBox.getChildren().size(); i++) {
+        for (int i = 0; !this.buttonBox.getChildren().isEmpty();) {
             this.buttonBox.getChildren().remove(i);
         }
-    }
+        ArrayList<ArrayList<ArrayList<Integer>>> possiblePlays = core.getPossibleMoves();
+        for (int i = 0; i < possiblePlays.size(); i++) {
+            VBox box = new VBox();
+            box.getChildren().add(new Text(core.getDicePairs().get(i).toString()));
+            ArrayList<ArrayList<Integer>> moveList = possiblePlays.get(i);
+            if (moveList == null) {
+                box.getChildren().add(new Text("No Possible move"));
+            } else {
+                for (int j = 0; j < moveList.size(); j++) {
+                    ArrayList<Integer> list = moveList.get(j);
+                    Button b = new Button("Move on" + list.toString());
+                    b.setOnMousePressed(new ButtonController(this.core, list));
+                    box.getChildren().add(b);
+                }
+            }
 
+            this.buttonBox.getChildren().add(box);
+        }
+        Button stop = new Button("Stop your turn");
+        stop.setOnMousePressed(new StopButtonController(this.core));
+        this.buttonBox.getChildren().add(stop);
+
+    }
 }

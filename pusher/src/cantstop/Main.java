@@ -28,7 +28,7 @@ public class Main extends Application {
         Core core = new Core(nbPlayers, new ArrayList<>(Arrays.asList(names)));
         BorderPane root = new BorderPane();
 
-        MainGameScene scene = new MainGameScene(core, root, 500, 500);
+        MainGameScene scene = new MainGameScene(core, root, 700, 700);
 
         primaryStage.setTitle("Can't Stop !");
         primaryStage.setScene(scene);
