@@ -22,4 +22,5 @@ public class Consts {
     public static double pawnSize = 5;
     public static double animationNumberFrames = 60;
     public static int slackHashMap = 2;
+    public static double canvasSize = 600;
 }

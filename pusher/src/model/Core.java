@@ -9,8 +9,6 @@ import cantstop.Consts;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Random;
-import view.GameDrawer;
-import view.Observer;
 
 /**
  *
@@ -46,7 +44,7 @@ public class Core {
 
     }
 
-    public boolean accept(GameDrawer drawer) {
+    public boolean accept(Visitor drawer) {
         drawer.visit(this);
         this.currentGameState.accept(drawer);
         for (PositionPawn p : pawns) {
@@ -62,8 +60,8 @@ public class Core {
     public void addDiceListener(Observer o) {
         this.diceListener = o;
     }
-    
-    public void addContinueListener(Observer o){
+
+    public void addContinueListener(Observer o) {
         this.continueListener = o;
     }
 
@@ -89,6 +87,7 @@ public class Core {
         diceListener.handle();
 
     }
+
     /* Bug friendly function I guess */
     public void findPossibleMoves() {
         boolean movePossible = false;
@@ -129,8 +128,8 @@ public class Core {
                     values.add(tracks);
                 }
                 if (currentGameState.getTrackForThisTurn().size() < 3) {
-                    
-                    if(!tracksConquered.contains(firstValue) || !tracksConquered.contains(secondValue)){
+
+                    if (!tracksConquered.contains(firstValue) || !tracksConquered.contains(secondValue)) {
                         values = new ArrayList<>();
                         movePossible = true;
                     }
@@ -166,7 +165,7 @@ public class Core {
             this.currentGameState.getTrackForThisTurn().add(t);
             //Pour correspondre à la HashMap
             Integer adaptedT = t - Consts.slackHashMap;
-            Integer maxHeight = Math.min(currentGameState.getPlayers().get(currentGameState.getCurrentPlayer()).getPositions().get(adaptedT) + 1, Consts.tabTrackLength[adaptedT]);
+            Integer maxHeight = Math.min(currentGameState.getPlayers().get(currentGameState.getCurrentPlayer()).getPositions().get(adaptedT) + 1, Consts.tabTrackLength[adaptedT] - 1);
 
             //Find the pawn associated with the tracks
             PositionPawn p = null;
@@ -194,12 +193,12 @@ public class Core {
         }
         this.currentSuperviserState = Superviser_automata.ANIMATING_END_TURN;
     }
-    
-    public void continueTurn(){
-        throwDices();   
+
+    public void continueTurn() {
+        throwDices();
     }
-    
-    public void notifyChoice(){
+
+    public void notifyChoice() {
         this.currentSuperviserState = Superviser_automata.WAITING_TO_CHOOSE_CONTINUE;
         continueListener.handle();
     }
@@ -208,12 +207,10 @@ public class Core {
         //update current player holds and check if the player has won one line
         Player currentPlayer = this.currentGameState.getPlayers().get(this.currentGameState.getCurrentPlayer());
         for (int i = 0; i < Consts.nbTrack; i++) {
-            if (currentPlayer.getPositions().get(i) == Consts.tabTrackLength[i]) {
-                currentPlayer.getTracksConquered().add(i+Consts.slackHashMap);
-            } else {
-                
-                currentPlayer.getHolds().put(i, currentPlayer.getPositions().get(i));
+            if (currentPlayer.getPositions().get(i) == Consts.tabTrackLength[i] - 1) {
+                currentPlayer.getTracksConquered().add(i + Consts.slackHashMap);
             }
+            currentPlayer.getHolds().put(i, currentPlayer.getPositions().get(i));
         }
         scoreListener.handle();
         for (PositionPawn p : pawns) {

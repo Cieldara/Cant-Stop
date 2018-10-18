@@ -38,8 +38,6 @@ public class RefreshJavaFX extends AnimationTimer {
             time++;
             if(time == Consts.animationNumberFrames){         
                 time = 0;
-                this.core.stopAnim();
-                //Something to do here
                 this.core.notifyChoice();
                 
             }
@@ -48,7 +46,6 @@ public class RefreshJavaFX extends AnimationTimer {
             time++;
             if(time == Consts.animationNumberFrames){
                 time = 0;
-                this.core.stopAnim();
                 this.core.nextPlayer();
             }
         }

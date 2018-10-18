@@ -23,7 +23,9 @@ public class StopButtonController implements EventHandler<MouseEvent> {
 
     @Override
     public void handle(MouseEvent event) {
-        core.stopTurn();
+        if (this.core.getCurrentSuperviserState() == Core.Superviser_automata.WAITING_TO_CHOOSE_CONTINUE) {
+            this.core.stopTurn();
+        }
     }
 
 }

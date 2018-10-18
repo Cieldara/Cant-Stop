@@ -8,7 +8,6 @@ package model;
 import cantstop.Consts;
 import java.util.HashMap;
 import java.util.HashSet;
-import view.GameDrawer;
 
 /**
  *
@@ -28,7 +27,6 @@ public class Player {
         this.positions = new HashMap<>();
         this.holds = new HashMap<>();
         for (Integer i = 0; i < Consts.nbTrack; i++) {
-            System.out.println(i);
             this.positions.put(i, -1);
             this.holds.put(i, -1);
         }
@@ -36,7 +34,7 @@ public class Player {
 
     }
 
-    public boolean accept(GameDrawer drawer) {
+    public boolean accept(Visitor drawer) {
         drawer.visit(this);
         return false;
     }

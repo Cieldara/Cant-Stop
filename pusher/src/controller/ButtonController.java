@@ -26,7 +26,10 @@ public class ButtonController implements EventHandler<MouseEvent> {
 
     @Override
     public void handle(MouseEvent event) {
-        core.updateCurrentPlayerPosition(tracksToMove);
+        if (this.core.getCurrentSuperviserState() == Core.Superviser_automata.WAITING_TO_CHOOSE_WAY) {
+            this.core.updateCurrentPlayerPosition(tracksToMove);
+        }
+
     }
 
 }

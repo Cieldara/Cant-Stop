@@ -8,7 +8,6 @@ package cantstop;
 import java.util.ArrayList;
 import java.util.Arrays;
 import javafx.application.Application;
-import javafx.scene.control.Button;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 import model.Core;
@@ -28,7 +27,7 @@ public class Main extends Application {
         Core core = new Core(nbPlayers, new ArrayList<>(Arrays.asList(names)));
         BorderPane root = new BorderPane();
 
-        MainGameScene scene = new MainGameScene(core, root, 700, 700);
+        MainGameScene scene = new MainGameScene(core, root, 1000, 1000);
 
         primaryStage.setTitle("Can't Stop !");
         primaryStage.setScene(scene);

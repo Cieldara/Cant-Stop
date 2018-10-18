@@ -6,7 +6,6 @@
 package model;
 
 import cantstop.Consts;
-import view.GameDrawer;
 
 /**
  *
@@ -21,6 +20,7 @@ public class PositionPawn {
     private double yPos;
     private double velocityX;
     private double velocityY;
+    private double time;
 
     public PositionPawn(int number, double xPos, double yPos) {
         this.number = number;
@@ -30,16 +30,25 @@ public class PositionPawn {
         this.yPos = yPos;
         this.velocityX = 0;
         this.velocityX = 0;
+        this.time = Consts.animationNumberFrames + 1;
     }
 
-    public boolean accept(GameDrawer drawer) {
+    public boolean accept(Visitor drawer) {
         drawer.visit(this);
         return false;
     }
 
     public void updatePosition() {
+        
+  
         xPos += velocityX;
         yPos += velocityY;
+        if(this.time < Consts.animationNumberFrames){
+            time++;
+        }
+        if(this.time == Consts.animationNumberFrames){
+            stop();
+        }
     }
 
     public int getTrack() {
@@ -59,8 +68,9 @@ public class PositionPawn {
             destX = Consts.startX + (track * Consts.slackBetweenTracks);
             destY = Consts.startY + (height * Consts.slackWithinTracks);
         }
-        velocityX = (destX - xPos) / Consts.animationNumberFrames;
-        velocityY = (destY - yPos) / Consts.animationNumberFrames;
+        this.velocityX = (destX - xPos) / Consts.animationNumberFrames;
+        this.velocityY = (destY - yPos) / Consts.animationNumberFrames;
+        this.time = 0;
 
     }
 

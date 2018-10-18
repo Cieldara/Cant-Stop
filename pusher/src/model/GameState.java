@@ -5,11 +5,10 @@
  */
 package model;
 
+import cantstop.Consts;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Objects;
-import view.GameDrawer;
 
 /**
  *
@@ -39,15 +38,16 @@ public class GameState {
     public HashSet getAllTracksConquered() {
         HashSet tracks = new HashSet();
         for (int i = 0; i < numberOfPlayers; i++) {
-            Iterator it = players.get(i).getTracksConquered().iterator();
-            while (it.hasNext()) {
-                tracks.add(it.next());
+            for (int j = 0; j < Consts.nbTrack; j++) {
+                if (players.get(i).getPositions().get(j) == Consts.tabTrackLength[j] - 1) {
+                    tracks.add(j + Consts.slackHashMap);
+                }
             }
         }
         return tracks;
     }
 
-    public boolean accept(GameDrawer drawer) {
+    public boolean accept(Visitor drawer) {
         drawer.visit(this);
         for (int i = 0; i < this.numberOfPlayers; i++) {
             this.players.get(i).accept(drawer);

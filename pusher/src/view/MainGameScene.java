@@ -5,11 +5,12 @@
  */
 package view;
 
+import cantstop.Consts;
+import model.Observer;
 import controller.ButtonController;
 import controller.ContinueButtonController;
 import controller.StopButtonController;
 import java.util.ArrayList;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
@@ -45,7 +46,7 @@ public class MainGameScene extends Scene {
     public void initScene() {
         scoreText = new ArrayList<>();
         BorderPane root = (BorderPane) this.getRoot();
-        Canvas canvas = new Canvas(400, 400);
+        Canvas canvas = new Canvas(Consts.canvasSize, Consts.canvasSize);
         root.setCenter(canvas);
 
         BorderPane scoreAndButtonPane = new BorderPane();
@@ -74,7 +75,7 @@ public class MainGameScene extends Scene {
                 updateDice();
             }
         });
-        
+
         this.core.addContinueListener(new Observer() {
             @Override
             public void handle() {
@@ -82,7 +83,6 @@ public class MainGameScene extends Scene {
             }
         });
 
-        System.out.println(canvas.getWidth());
         refreshor = new RefreshJavaFX(core, canvas);
         refreshor.start();
         core.throwDices();
@@ -117,23 +117,21 @@ public class MainGameScene extends Scene {
 
             this.buttonBox.getChildren().add(box);
         }
-        
 
     }
-    
-    public void updateChoice(){
+
+    public void updateChoice() {
         for (int i = 0; !this.buttonBox.getChildren().isEmpty();) {
             this.buttonBox.getChildren().remove(i);
         }
-        
+
         Button cont = new Button("Continue your turn");
         cont.setOnMousePressed(new ContinueButtonController(this.core));
         this.buttonBox.getChildren().add(cont);
-        
+
         Button stop = new Button("Stop your turn");
         stop.setOnMousePressed(new StopButtonController(this.core));
         this.buttonBox.getChildren().add(stop);
-        
-        
+
     }
 }
